@@ -1,0 +1,28 @@
+Basic Form creation class for PHP.
+Licensed under GNU AGPL.
+
+Example usage:
+
+	// Create form class what will use GET-parameter when
+	// sending data to index.php
+	$frm = new CForm( 'index.php', 'GET' );
+
+	// Create text field.
+	$frm->addTextField( 'Username: ', 'username' );
+
+	// Create password field.
+	$frm->addPasswordField( 'Password: ', 'password' );
+
+	// Create Combobox. First param is caption, second is name,
+	// third is array where is listed values and their captions.
+	$frm->addCombobox( 'City: ', 'city', 
+		array( 'tre' => 'Tampere', 
+			   'jkl' => 'Jyväskylä', 
+			   'shr' => '_Suhmura', 
+			   'ktk' => 'Kotka' ) );
+
+	// Create submit-button.
+	$frm->addSubmit( 'Login', 'submit' );
+
+	// Generate form and echo it.
+	echo $frm->createForm();
