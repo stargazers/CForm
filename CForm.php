@@ -114,8 +114,25 @@ class CForm
 		if( $id == '' )
 			$id = $name . '_id';
 
-		$this->form_items[] = array( 'text', $caption, 
-			$name, $id, $value );
+		$this->form_items[] = array(
+			'type' => 'text',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'value' => $value );
+	}
+
+	public function addCombobox( $caption, $name, $fields, $id='' )
+	{
+		if( $id == '' )
+			$id = $name . '_id';
+
+		$this->form_items[] = array( 
+			'type' => 'option',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'fields' => $fields );
 	}
 
 	// **************************************************
@@ -137,8 +154,12 @@ class CForm
 		if( $id == '' )
 			$id = $name . '_id';
 
-		$this->form_items[] = array( 'password', $caption, 
-			$name, $id, $value );
+		$this->form_items[] = array(
+			'type' => 'password',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'value' => $value );
 	}
 
 	// **************************************************
@@ -160,8 +181,12 @@ class CForm
 		if( $id == '' )
 			$id = $name . '_id';
 
-		$this->form_items[] = array( 'submit', $name, 
-			$id, $value );
+		$this->form_items[] = array(
+			'type' => 'submit',
+			'caption' => '',
+			'name' => $name,
+			'id' => $id,
+			'value' => $value );
 	}
 
 	// **************************************************
@@ -174,8 +199,8 @@ class CForm
 	// **************************************************
 	private function textToHTML( $items )
 	{
-		return '<input type="text" name="' . $items[2] . '" '
-			. 'id="' . $items[3] . '" value="' . $items[4] . '">';
+		return '<input type="text" name="' . $items['name'] . '" '
+			. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
 	}
 
 	// **************************************************
@@ -188,8 +213,8 @@ class CForm
 	// **************************************************
 	private function passwordToHTML( $items )
 	{
-		return '<input type="password" name="' . $items[2] . '" '
-			. 'id="' . $items[3] . '">';
+		return '<input type="password" name="' . $items['name'] . '" '
+			. 'id="' . $items['id'] . '">';
 	}
 
 	// **************************************************
@@ -202,8 +227,50 @@ class CForm
 	// **************************************************
 	private function submitToHTML( $items )
 	{
-		return '<input type="submit" name="' . $items[1] . '" '
-			. 'id="' . $items[2] . '" value="' . $items[3] . '">';
+		return '<input type="submit" name="' . $items['name'] . '" '
+			. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
+	}
+
+	// **************************************************
+	//	optionToHTML
+	/*!
+		@brief Convert Option-Select to HTML combobox.
+
+		@return String.
+	*/
+	// **************************************************
+	private function optionToHTML( $items )
+	{
+		$ret = '<select name="' . $items['name'] . '">' . "\n";
+
+		// We have array inside $items array where must be
+		// key and value pairs. In $key we must have name of selection
+		// for "value" field in HTML, in $value we have visible part
+		// what will be inside <option></option> tags.
+		foreach( $items['fields'] as $key => $value )
+		{
+			$ret .= "\t";
+
+			// If this text fitst letter is _, then we remove that
+			// underscore and make this item as "selected".
+			if( substr( $value, 0, 1 ) == '_' )
+			{
+				$value = substr( $value, 1 );
+				$ret .= '<option value="' . $key . '" selected>';
+			}
+			else
+			{
+				$ret .= '<option value="' . $key . '">';
+			}
+
+			$ret .= $value;
+			$ret .= '</option>';
+			$ret .= "\n";
+		}
+
+		$ret .= '</select>';
+		$ret .= "\n";
+		return $ret;
 	}
 
 	// **************************************************
@@ -235,21 +302,22 @@ class CForm
 		{
 			// In first index of form_items there is defined
 			// if this is a textfield, passwordfield, submit or so on.
-			switch( $fi[$i][0] )
+			switch( $fi[$i]['type'] )
 			{
 				case 'text':
-					$caption = $fi[$i][1];
 					$ret = $this->textToHTML( $fi[$i] );
 					break;
 
 				case 'password':
-					$caption = $fi[$i][1];
 					$ret = $this->passwordToHTML( $fi[$i] );
 					break;
 
 				case 'submit':
-					$caption = '';
 					$ret = $this->submitToHTML( $fi[$i] );
+					break;
+				
+				case 'option':
+					$ret = $this->optionToHTML( $fi[$i] );
 					break;
 			}
 
@@ -257,7 +325,7 @@ class CForm
 			// with two elements. First one is the caption what
 			// will be used in table, second one is our html what
 			// we generated above to variable $ret.
-			$items[] = array( $caption, $ret );
+			$items[] = array( $fi[$i]['caption'], $ret );
 		}
 
 		return $items;
