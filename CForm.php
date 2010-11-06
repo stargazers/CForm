@@ -49,11 +49,6 @@
 			$this->method = $method;
 			$this->url = $url;
 			$this->form_name = 'form_' . basename( $url );
-
-			$this->form = '<form action="' . $url . '"'
-				. ' name="' . $this->form_name . '"'
-				. ' method="' . $method . '">';
-			$this->form .= "\n";
 		}
 
 		// **************************************************
@@ -337,6 +332,21 @@
 	}
 
 	// **************************************************
+	//	setFormName
+	/*!
+		@brief Set form name what will be in <form name="something"
+
+		@param $name Form name
+
+		@return None.
+	*/
+	// **************************************************
+	public function setFormName( $name )
+	{
+		$this->form_name = $name;
+	}
+
+	// **************************************************
 	//	createForm
 	/*!
 		@brief Create form with already added elements.
@@ -349,6 +359,11 @@
 		// Process form_items array to HTML format so we can
 		// create HTML table.
 		$items = $this->itemsToHTML();
+
+		$this->form = '<form action="' . $url . '"'
+			. ' name="' . $this->form_name . '"'
+			. ' method="' . $method . '">';
+		$this->form .= "\n";
 
 		// Create HTML table with elements we have added to form.
 		$this->form .= $this->createTable( $items );
