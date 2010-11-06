@@ -1,324 +1,338 @@
-	<?php
+<?php
 
-	/* 
-	CForm. Basic HTML Form creator.
-	Copyright (C) 2010 Aleksi Räsänen <aleksi.rasanen@runosydan.net>
+/* 
+CForm. Basic HTML Form creator.
+Copyright (C) 2010 Aleksi Räsänen <aleksi.rasanen@runosydan.net>
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Affero General Public License as
-	published by the Free Software Foundation, either version 3 of the
-	License, or (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
 
-	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+class CForm
+{
+	//! Here we save our form 
+	private $form = '';
+
+	//! Goes to form action-field
+	private $url;
+
+	//! Method, POST, GET, FILE etc.
+	private $method;
+
+	//! Here we store elements before we create array.
+	private $form_items = array();
+
+	//! Form name what we generate here.
+	private $form_name;
+
+	// **************************************************
+	//	Class constructor
+	/*!
+		@brief $url URL what goes to from action field.
+
+		@brief $method POST, GET, FILE and so on.
+
+		@return None.
 	*/
-	class CForm
+	// **************************************************
+	public function __construct( $url, $method )
 	{
-		//! Here we save our form 
-		private $form = '';
+		$this->method = $method;
+		$this->url = $url;
+		$this->form_name = 'form_' . basename( $url );
+	}
 
-		//! Goes to form action-field
-		private $url;
+	// **************************************************
+	//	createTable
+	/*!
+		@brief Create HTML table and add rows CSS class
+		  'odd' and 'even'.
 
-		//! Method, POST, GET, FILE etc.
-		private $method;
+		@param $values Array of values.
 
-		//! Here we store elements before we create array.
-		private $form_items = array();
+		@return Generated HTML in string.
+	*/
+	// **************************************************
+	public function createTable( $values )
+	{
+		$out = '<table>';
+		$tmp = 0;
 
-		//! Form name what we generate here.
-		private $form_name;
-
-		// **************************************************
-		//	Class constructor
-		/*!
-			@brief $url URL what goes to from action field.
-
-			@brief $method POST, GET, FILE and so on.
-
-			@return None.
-		*/
-		// **************************************************
-		public function __construct( $url, $method )
+		foreach( $values as $val )
 		{
-			$this->method = $method;
-			$this->url = $url;
-			$this->form_name = 'form_' . basename( $url );
-		}
+			if( $tmp == 2 )
+				$tmp = 0;
 
-		// **************************************************
-		//	createTable
-		/*!
-			@brief Create HTML table and add rows CSS class
-			  'odd' and 'even'.
+			if( $tmp == 0 )
+				$out .= '<tr class="odd">';
+			else
+				$out .= '<tr class="even">';
 
-			@param $values Array of values.
-
-			@return Generated HTML in string.
-		*/
-		// **************************************************
-		public function createTable( $values )
-		{
-			$out = '<table>';
-			$tmp = 0;
-
-			foreach( $values as $val )
+			$num_vals = count( $val );
+			for( $i=0; $i < $num_vals; $i++ )
 			{
-				if( $tmp == 2 )
-					$tmp = 0;
-
-				if( $tmp == 0 )
-					$out .= '<tr class="odd">';
-				else
-					$out .= '<tr class="even">';
-
-				$num_vals = count( $val );
-				for( $i=0; $i < $num_vals; $i++ )
-				{
-					$out .= '<td>';
-					$out .= $val[$i];
-					$out .= '</td>';
-				}
-
-				$out .= '</tr>';
-				$tmp++;
+				$out .= '<td>';
+				$out .= $val[$i];
+				$out .= '</td>';
 			}
 
-			$out .= '</table>';
-			return $out;
+			$out .= '</tr>';
+			$tmp++;
 		}
 
-		// **************************************************
-		//	addTextField
-		/*!
-			@brief Add text field to form.
+		$out .= '</table>';
+		return $out;
+	}
 
-			@param $caption Caption to show in a HTML table.
+	// **************************************************
+	//	addTextField
+	/*!
+		@brief Add text field to form.
 
-			@param $name HTML element name.
+		@param $caption Caption to show in a HTML table.
 
-			@param $id Unique ID form HTML id-element.
+		@param $name HTML element name.
 
-			@param $value Default text to element.
+		@param $id Unique ID form HTML id-element.
 
-			@return None.
-		*/
-		// **************************************************
-		public function addTextField( $caption, $name, $id='', $value='' )
+		@param $value Default text to element.
+
+		@return None.
+	*/
+	// **************************************************
+	public function addTextField( $caption, $name, $id='', $value='' )
+	{
+		if( $id == '' )
+			$id = $name . '_id';
+
+		$this->form_items[] = array(
+			'type' => 'text',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'value' => $value );
+	}
+
+	// **************************************************
+	//	addCombobox
+	/*!
+		@brief Create a crombobox
+
+		@param $caption Combobox caption
+
+		@param $name Name of combobox.
+
+		@param $fields Fields to add in array.
+
+		@param $id Optional. ID of this combobox.
+	*/
+	// **************************************************
+	public function addCombobox( $caption, $name, $fields, $id='' )
+	{
+		if( $id == '' )
+			$id = $name . '_id';
+
+		$this->form_items[] = array( 
+			'type' => 'option',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'fields' => $fields );
+	}
+
+	// **************************************************
+	//	addPasswordField
+	/*!
+		@brief Add password field to form.
+
+		@param $caption Caption to show in a HTML table.
+
+		@param $name HTML element name.
+
+		@param $id Unique ID form HTML id-element.
+
+		@return None.
+	*/
+	// **************************************************
+	public function addPasswordField( $caption, $name, $id='' )
+	{
+		if( $id == '' )
+			$id = $name . '_id';
+
+		$this->form_items[] = array(
+			'type' => 'password',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'value' => $value );
+	}
+
+	// **************************************************
+	//	addSubmit
+	/*!
+		@brief Add Submit button to form.
+
+		@param $value Text what will be shown in Submit-button.
+
+		@param $name HTML element name.
+
+		@param $id Unique ID form HTML id-element.
+
+		@return None.
+	*/
+	// **************************************************
+	public function addSubmit( $value, $name, $id='')
+	{
+		if( $id == '' )
+			$id = $name . '_id';
+
+		$this->form_items[] = array(
+			'type' => 'submit',
+			'caption' => '',
+			'name' => $name,
+			'id' => $id,
+			'value' => $value );
+	}
+
+	// **************************************************
+	//	textToHTML
+	/*!
+		@brief Convert text inputbox element array to HTML input.
+
+		@return String.
+	*/
+	// **************************************************
+	private function textToHTML( $items )
+	{
+		return '<input type="text" name="' . $items['name'] . '" '
+			. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
+	}
+
+	// **************************************************
+	//	passwordToHTML
+	/*!
+		@brief Convert password element array to HTML password.
+
+		@return String.
+	*/
+	// **************************************************
+	private function passwordToHTML( $items )
+	{
+		return '<input type="password" name="' . $items['name'] . '" '
+			. 'id="' . $items['id'] . '">';
+	}
+
+	// **************************************************
+	//	submitToHTML
+	/*!
+		@brief Convert Submit-button array to HTML Submit.
+
+		@return String.
+	*/
+	// **************************************************
+	private function submitToHTML( $items )
+	{
+		return '<input type="submit" name="' . $items['name'] . '" '
+			. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
+	}
+
+	// **************************************************
+	//	optionToHTML
+	/*!
+		@brief Convert Option-Select to HTML combobox.
+
+		@return String.
+	*/
+	// **************************************************
+	private function optionToHTML( $items )
+	{
+		$ret = '<select name="' . $items['name'] . '">' . "\n";
+
+		// We have array inside $items array where must be
+		// key and value pairs. In $key we must have name of selection
+		// for "value" field in HTML, in $value we have visible part
+		// what will be inside <option></option> tags.
+		foreach( $items['fields'] as $key => $value )
 		{
-			if( $id == '' )
-				$id = $name . '_id';
+			$ret .= "\t";
 
-			$this->form_items[] = array(
-				'type' => 'text',
-				'caption' => $caption,
-				'name' => $name,
-				'id' => $id,
-				'value' => $value );
-		}
-
-		public function addCombobox( $caption, $name, $fields, $id='' )
-		{
-			if( $id == '' )
-				$id = $name . '_id';
-
-			$this->form_items[] = array( 
-				'type' => 'option',
-				'caption' => $caption,
-				'name' => $name,
-				'id' => $id,
-				'fields' => $fields );
-		}
-
-		// **************************************************
-		//	addPasswordField
-		/*!
-			@brief Add password field to form.
-
-			@param $caption Caption to show in a HTML table.
-
-			@param $name HTML element name.
-
-			@param $id Unique ID form HTML id-element.
-
-			@return None.
-		*/
-		// **************************************************
-		public function addPasswordField( $caption, $name, $id='' )
-		{
-			if( $id == '' )
-				$id = $name . '_id';
-
-			$this->form_items[] = array(
-				'type' => 'password',
-				'caption' => $caption,
-				'name' => $name,
-				'id' => $id,
-				'value' => $value );
-		}
-
-		// **************************************************
-		//	addSubmit
-		/*!
-			@brief Add Submit button to form.
-
-			@param $value Text what will be shown in Submit-button.
-
-			@param $name HTML element name.
-
-			@param $id Unique ID form HTML id-element.
-
-			@return None.
-		*/
-		// **************************************************
-		public function addSubmit( $value, $name, $id='')
-		{
-			if( $id == '' )
-				$id = $name . '_id';
-
-			$this->form_items[] = array(
-				'type' => 'submit',
-				'caption' => '',
-				'name' => $name,
-				'id' => $id,
-				'value' => $value );
-		}
-
-		// **************************************************
-		//	textToHTML
-		/*!
-			@brief Convert text inputbox element array to HTML input.
-
-			@return String.
-		*/
-		// **************************************************
-		private function textToHTML( $items )
-		{
-			return '<input type="text" name="' . $items['name'] . '" '
-				. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
-		}
-
-		// **************************************************
-		//	passwordToHTML
-		/*!
-			@brief Convert password element array to HTML password.
-
-			@return String.
-		*/
-		// **************************************************
-		private function passwordToHTML( $items )
-		{
-			return '<input type="password" name="' . $items['name'] . '" '
-				. 'id="' . $items['id'] . '">';
-		}
-
-		// **************************************************
-		//	submitToHTML
-		/*!
-			@brief Convert Submit-button array to HTML Submit.
-
-			@return String.
-		*/
-		// **************************************************
-		private function submitToHTML( $items )
-		{
-			return '<input type="submit" name="' . $items['name'] . '" '
-				. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
-		}
-
-		// **************************************************
-		//	optionToHTML
-		/*!
-			@brief Convert Option-Select to HTML combobox.
-
-			@return String.
-		*/
-		// **************************************************
-		private function optionToHTML( $items )
-		{
-			$ret = '<select name="' . $items['name'] . '">' . "\n";
-
-			// We have array inside $items array where must be
-			// key and value pairs. In $key we must have name of selection
-			// for "value" field in HTML, in $value we have visible part
-			// what will be inside <option></option> tags.
-			foreach( $items['fields'] as $key => $value )
+			// If this text fitst letter is _, then we remove that
+			// underscore and make this item as "selected".
+			if( substr( $value, 0, 1 ) == '_' )
 			{
-				$ret .= "\t";
-
-				// If this text fitst letter is _, then we remove that
-				// underscore and make this item as "selected".
-				if( substr( $value, 0, 1 ) == '_' )
-				{
-					$value = substr( $value, 1 );
-					$ret .= '<option value="' . $key . '" selected>';
-				}
-				else
-				{
-					$ret .= '<option value="' . $key . '">';
-				}
-
-				$ret .= $value;
-				$ret .= '</option>';
-				$ret .= "\n";
+				$value = substr( $value, 1 );
+				$ret .= '<option value="' . $key . '" selected>';
+			}
+			else
+			{
+				$ret .= '<option value="' . $key . '">';
 			}
 
-			$ret .= '</select>';
+			$ret .= $value;
+			$ret .= '</option>';
 			$ret .= "\n";
-			return $ret;
 		}
 
-		// **************************************************
-		//	itemsToHTML
-		/*!
-			@brief This method checks class private variable
-			  $form_items array, check what kind of element it is,
-			  eg. textbox or password field and then calls correct
-			  method to convert it to HTML. Then this method
-			  add converted HTML to return array where we add
-			  two array items per array row, eg. Caption and
-			  item like inputbox.
+		$ret .= '</select>';
+		$ret .= "\n";
+		return $ret;
+	}
 
-			  This method must be called before we create a form,
-			  because table creation cannot use $form_items
-			  array directly!
+	// **************************************************
+	//	itemsToHTML
+	/*!
+		@brief This method checks class private variable
+		  $form_items array, check what kind of element it is,
+		  eg. textbox or password field and then calls correct
+		  method to convert it to HTML. Then this method
+		  add converted HTML to return array where we add
+		  two array items per array row, eg. Caption and
+		  item like inputbox.
 
-			@return Array.
-		*/
-		// **************************************************
-		private function itemsToHTML()
+		  This method must be called before we create a form,
+		  because table creation cannot use $form_items
+		  array directly!
+
+		@return Array.
+	*/
+	// **************************************************
+	private function itemsToHTML()
+	{
+		$items = array();
+		$max = count( $this->form_items );
+		$fi = $this->form_items;
+		$caption = '';
+
+		for( $i=0; $i < $max; $i++ )
 		{
-			$items = array();
-			$max = count( $this->form_items );
-			$fi = $this->form_items;
-			$caption = '';
-
-			for( $i=0; $i < $max; $i++ )
+			// In first index of form_items there is defined
+			// if this is a textfield, passwordfield, submit or so on.
+			switch( $fi[$i]['type'] )
 			{
-				// In first index of form_items there is defined
-				// if this is a textfield, passwordfield, submit or so on.
-				switch( $fi[$i]['type'] )
-				{
-					case 'text':
-						$ret = $this->textToHTML( $fi[$i] );
-						break;
-
-					case 'password':
-						$ret = $this->passwordToHTML( $fi[$i] );
-						break;
-
-					case 'submit':
-						$ret = $this->submitToHTML( $fi[$i] );
-						break;
-					
-					case 'option':
-					$ret = $this->optionToHTML( $fi[$i] );
+				case 'text':
+					$ret = $this->textToHTML( $fi[$i] );
 					break;
+
+				case 'password':
+					$ret = $this->passwordToHTML( $fi[$i] );
+					break;
+
+				case 'submit':
+					$ret = $this->submitToHTML( $fi[$i] );
+					break;
+				
+				case 'option':
+				$ret = $this->optionToHTML( $fi[$i] );
+				break;
 			}
 
 			// Add new array in $items array. We must add array
