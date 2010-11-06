@@ -123,6 +123,28 @@ class CForm
 	}
 
 	// **************************************************
+	//	addHiddenField
+	/*!
+		@brief Add hidden form field.
+
+		@param $name Hidden field name
+
+		@param $value Hidden field value.
+
+		@return None.
+	*/
+	// **************************************************
+	public function addHiddenField( $name, $value )
+	{
+		$this->form_items[] = array(
+			'type' => 'hidden',
+			'caption' => '',
+			'name' => $name,
+			'id' => '',
+			'value' => $value );
+	}
+
+	// **************************************************
 	//	addCombobox
 	/*!
 		@brief Create a crombobox
@@ -246,6 +268,20 @@ class CForm
 	}
 
 	// **************************************************
+	//	hiddenToHTML
+	/*!
+		@brief Convert hidden input field to HTML.
+
+		@return String.
+	*/
+	// **************************************************
+	private function hiddenToHTML( $items )
+	{
+		return '<input type="hidden" name="' . $items['name'] . '" '
+			. 'value="' . $items['value'] . '">';
+	}
+
+	// **************************************************
 	//	optionToHTML
 	/*!
 		@brief Convert Option-Select to HTML combobox.
@@ -331,8 +367,12 @@ class CForm
 					break;
 				
 				case 'option':
-				$ret = $this->optionToHTML( $fi[$i] );
-				break;
+					$ret = $this->optionToHTML( $fi[$i] );
+					break;
+
+				case 'hidden':
+					$ret = $this->hiddenToHTML( $fi[$i] );
+					break;
 			}
 
 			// Add new array in $items array. We must add array
