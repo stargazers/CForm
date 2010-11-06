@@ -374,9 +374,9 @@ class CForm
 		// create HTML table.
 		$items = $this->itemsToHTML();
 
-		$this->form = '<form action="' . $url . '"'
+		$this->form = '<form action="' . $this->url . '"'
 			. ' name="' . $this->form_name . '"'
-			. ' method="' . $method . '">';
+			. ' method="' . $this->method . '">';
 		$this->form .= "\n";
 
 		// Create HTML table with elements we have added to form.
