@@ -17,6 +17,16 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+// **************************************************
+//	CForm
+/*!
+	@brief Form generation class for PHP.
+
+	@author Aleksi Räsänen 2010
+	        aleksi.rasanen@runosydan.net
+*/
+// **************************************************
 class CForm
 {
 	//! Here we save our form 
@@ -226,70 +236,119 @@ class CForm
 	}
 
 	// **************************************************
-	//	textToHTML
+	//	setFormName
+	/*!
+		@brief Set form name what will be in <form name="something"
+
+		@param $name Form name
+
+		@return None.
+	*/
+	// **************************************************
+	public function setFormName( $name )
+	{
+		$this->form_name = $name;
+	}
+
+	// **************************************************
+	//	createForm
+	/*!
+		@brief Create form with already added elements.
+
+		@return HTML Form as a string.
+	*/
+	// **************************************************
+	public function createForm()
+	{
+		// Process form_items array to HTML format so we can
+		// create HTML table.
+		$items = $this->items_to_html();
+
+		$this->form = '<form action="' . $this->url . '"'
+			. ' name="' . $this->form_name . '"'
+			. ' method="' . $this->method . '">';
+		$this->form .= "\n";
+
+		// Create HTML table with elements we have added to form.
+		$this->form .= $this->createTable( $items );
+
+		$this->form .= '</form>';
+		$this->form .= "\n";
+		$this->form .= '<script type="text/javascript" '
+			. 'language="JavaScript">' . "\n";
+		$this->form .= 'document.forms["' . $this->form_name 
+			. '"].elements["' . $this->form_items[0]['name'] 
+			. '"].focus();';
+		$this->form .= '</script>' . "\n";
+
+		return $this->form;
+	}
+
+	// **************************************************
+	//	text_to_html
 	/*!
 		@brief Convert text inputbox element array to HTML input.
 
 		@return String.
 	*/
 	// **************************************************
-	private function textToHTML( $items )
+	private function text_to_html( $items )
 	{
 		return '<input type="text" name="' . $items['name'] . '" '
 			. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
 	}
 
 	// **************************************************
-	//	passwordToHTML
+	//	password_to_html
 	/*!
 		@brief Convert password element array to HTML password.
 
 		@return String.
 	*/
 	// **************************************************
-	private function passwordToHTML( $items )
+	private function password_to_html( $items )
 	{
 		return '<input type="password" name="' . $items['name'] . '" '
 			. 'id="' . $items['id'] . '">';
 	}
 
 	// **************************************************
-	//	submitToHTML
+	//	submit_to_html
 	/*!
 		@brief Convert Submit-button array to HTML Submit.
 
 		@return String.
 	*/
 	// **************************************************
-	private function submitToHTML( $items )
+	private function submit_to_html( $items )
 	{
 		return '<input type="submit" name="' . $items['name'] . '" '
 			. 'id="' . $items['id'] . '" value="' . $items['value'] . '">';
 	}
 
 	// **************************************************
-	//	hiddenToHTML
+	//	hidden_to_html
 	/*!
 		@brief Convert hidden input field to HTML.
 
 		@return String.
 	*/
 	// **************************************************
-	private function hiddenToHTML( $items )
+	private function hidden_to_html( $items )
 	{
 		return '<input type="hidden" name="' . $items['name'] . '" '
 			. 'value="' . $items['value'] . '">';
 	}
 
 	// **************************************************
-	//	optionToHTML
+	//	option_to_html
 	/*!
 		@brief Convert Option-Select to HTML combobox.
 
 		@return String.
 	*/
 	// **************************************************
-	private function optionToHTML( $items )
+	private function option_to_html( $items )
 	{
 		$ret = '<select name="' . $items['name'] . '">' . "\n";
 
@@ -324,9 +383,9 @@ class CForm
 	}
 
 	// **************************************************
-	//	itemsToHTML
+	//	items_to_html
 	/*!
-		@brief This method checks class private variable
+		  @brief This method checks class private variable
 		  $form_items array, check what kind of element it is,
 		  eg. textbox or password field and then calls correct
 		  method to convert it to HTML. Then this method
@@ -338,10 +397,10 @@ class CForm
 		  because table creation cannot use $form_items
 		  array directly!
 
-		@return Array.
-	*/
+		  @return Array.
+	 */
 	// **************************************************
-	private function itemsToHTML()
+	private function items_to_html()
 	{
 		$items = array();
 		$max = count( $this->form_items );
@@ -355,23 +414,23 @@ class CForm
 			switch( $fi[$i]['type'] )
 			{
 				case 'text':
-					$ret = $this->textToHTML( $fi[$i] );
+					$ret = $this->text_to_html( $fi[$i] );
 					break;
 
 				case 'password':
-					$ret = $this->passwordToHTML( $fi[$i] );
+					$ret = $this->password_to_html( $fi[$i] );
 					break;
 
 				case 'submit':
-					$ret = $this->submitToHTML( $fi[$i] );
+					$ret = $this->submit_to_html( $fi[$i] );
 					break;
 				
 				case 'option':
-					$ret = $this->optionToHTML( $fi[$i] );
+					$ret = $this->option_to_html( $fi[$i] );
 					break;
 
 				case 'hidden':
-					$ret = $this->hiddenToHTML( $fi[$i] );
+					$ret = $this->hidden_to_html( $fi[$i] );
 					break;
 			}
 
@@ -383,55 +442,6 @@ class CForm
 		}
 
 		return $items;
-	}
-
-	// **************************************************
-	//	setFormName
-	/*!
-		@brief Set form name what will be in <form name="something"
-
-		@param $name Form name
-
-		@return None.
-	*/
-	// **************************************************
-	public function setFormName( $name )
-	{
-		$this->form_name = $name;
-	}
-
-	// **************************************************
-	//	createForm
-	/*!
-		@brief Create form with already added elements.
-
-		@return HTML Form as a string.
-	*/
-	// **************************************************
-	public function createForm()
-	{
-		// Process form_items array to HTML format so we can
-		// create HTML table.
-		$items = $this->itemsToHTML();
-
-		$this->form = '<form action="' . $this->url . '"'
-			. ' name="' . $this->form_name . '"'
-			. ' method="' . $this->method . '">';
-		$this->form .= "\n";
-
-		// Create HTML table with elements we have added to form.
-		$this->form .= $this->createTable( $items );
-
-		$this->form .= '</form>';
-		$this->form .= "\n";
-		$this->form .= '<script type="text/javascript" '
-			. 'language="JavaScript">' . "\n";
-		$this->form .= 'document.forms["' . $this->form_name 
-			. '"].elements["' . $this->form_items[0]['name'] 
-			. '"].focus();';
-		$this->form .= '</script>' . "\n";
-
-		return $this->form;
 	}
 }
 
