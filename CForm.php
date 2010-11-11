@@ -18,6 +18,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+error_reporting( E_ALL );
+
 // **************************************************
 //	CForm
 /*!
@@ -204,8 +206,7 @@ class CForm
 			'type' => 'password',
 			'caption' => $caption,
 			'name' => $name,
-			'id' => $id,
-			'value' => $value );
+			'id' => $id );
 	}
 
 	// **************************************************
@@ -274,8 +275,7 @@ class CForm
 
 		$this->form .= '</form>';
 		$this->form .= "\n";
-		$this->form .= '<script type="text/javascript" '
-			. 'language="JavaScript">' . "\n";
+		$this->form .= '<script type="text/javascript">' . "\n";
 		$this->form .= 'document.forms["' . $this->form_name 
 			. '"].elements["' . $this->form_items[0]['name'] 
 			. '"].focus();';
