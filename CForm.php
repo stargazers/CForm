@@ -26,7 +26,7 @@ error_reporting( E_ALL );
 	@brief Form generation class for PHP.
 
 	@author Aleksi Räsänen 2010
-	        aleksi.rasanen@runosydan.net
+	@email aleksi.rasanen@runosydan.net
 */
 // **************************************************
 class CForm
@@ -49,9 +49,11 @@ class CForm
 	// **************************************************
 	//	Class constructor
 	/*!
-		@brief $url URL what goes to from action field.
+		@brief Class constructor
+		
+		@param $url URL what goes to from action field.
 
-		@brief $method POST, GET, FILE and so on.
+		@param $method POST, GET, FILE and so on.
 
 		@return None.
 	*/
