@@ -2,7 +2,7 @@
 
 /* 
 CForm. Basic HTML Form creator.
-Copyright (C) 2010 Aleksi Räsänen <aleksi.rasanen@runosydan.net>
+Copyright (C) 2010, 2011 Aleksi Räsänen <aleksi.rasanen@runosydan.net>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,6 @@ error_reporting( E_ALL );
 //	CForm
 /*!
 	@brief Form generation class for PHP.
-
 	@author Aleksi Räsänen 2010
 	@email aleksi.rasanen@runosydan.net
 */
@@ -50,11 +49,8 @@ class CForm
 	//	Class constructor
 	/*!
 		@brief Class constructor
-		
 		@param $url URL what goes to from action field.
-
 		@param $method POST, GET, FILE and so on.
-
 		@return None.
 	*/
 	// **************************************************
@@ -70,9 +66,7 @@ class CForm
 	/*!
 		@brief Create HTML table and add rows CSS class
 		  'odd' and 'even'.
-
 		@param $values Array of values.
-
 		@return Generated HTML in string.
 	*/
 	// **************************************************
@@ -107,19 +101,33 @@ class CForm
 		return $out;
 	}
 
+	// ************************************************** 
+	//  addFileButton
+	/*!
+		@brief Add File selection button to form
+		@param $caption Caption to show in button
+		@param $name HTML element name
+		@param $id Unique HTML element ID
+	*/
+	// ************************************************** 
+	public function addFileButton( $caption, $name, $id='' )
+	{
+		$this->form_items[] = array(
+			'type' => 'file',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'value' => '' );
+	}
+
 	// **************************************************
 	//	addTextField
 	/*!
 		@brief Add text field to form.
-
 		@param $caption Caption to show in a HTML table.
-
 		@param $name HTML element name.
-
 		@param $id Unique ID form HTML id-element.
-
 		@param $value Default text to element.
-
 		@return None.
 	*/
 	// **************************************************
@@ -140,11 +148,8 @@ class CForm
 	//	addHiddenField
 	/*!
 		@brief Add hidden form field.
-
 		@param $name Hidden field name
-
 		@param $value Hidden field value.
-
 		@return None.
 	*/
 	// **************************************************
@@ -162,13 +167,9 @@ class CForm
 	//	addCombobox
 	/*!
 		@brief Create a crombobox
-
 		@param $caption Combobox caption
-
 		@param $name Name of combobox.
-
 		@param $fields Fields to add in array.
-
 		@param $id Optional. ID of this combobox.
 	*/
 	// **************************************************
@@ -189,13 +190,9 @@ class CForm
 	//	addPasswordField
 	/*!
 		@brief Add password field to form.
-
 		@param $caption Caption to show in a HTML table.
-
 		@param $name HTML element name.
-
 		@param $id Unique ID form HTML id-element.
-
 		@return None.
 	*/
 	// **************************************************
@@ -215,13 +212,9 @@ class CForm
 	//	addSubmit
 	/*!
 		@brief Add Submit button to form.
-
 		@param $value Text what will be shown in Submit-button.
-
 		@param $name HTML element name.
-
 		@param $id Unique ID form HTML id-element.
-
 		@return None.
 	*/
 	// **************************************************
@@ -242,9 +235,7 @@ class CForm
 	//	setFormName
 	/*!
 		@brief Set form name what will be in <form name="something"
-
 		@param $name Form name
-
 		@return None.
 	*/
 	// **************************************************
@@ -257,7 +248,6 @@ class CForm
 	//	createForm
 	/*!
 		@brief Create form with already added elements.
-
 		@return HTML Form as a string.
 	*/
 	// **************************************************
@@ -267,10 +257,16 @@ class CForm
 		// create HTML table.
 		$items = $this->items_to_html();
 
-		$this->form = '<form action="' . $this->url . '"'
-			. ' name="' . $this->form_name . '"'
-			. ' method="' . $this->method . '">';
-		$this->form .= "\n";
+		$this->form = '<form action="' . $this->url . '"';
+
+		if( $this->method == 'file' )
+		{
+			$this->method = 'post';
+			$this->form .= ' enctype="multipart/form-data"';
+		}
+
+		$this->form .= ' name="' . $this->form_name . '"'
+			. ' method="' . $this->method . '">' . "\n";
 
 		// Create HTML table with elements we have added to form.
 		$this->form .= $this->createTable( $items );
@@ -290,7 +286,6 @@ class CForm
 	//	text_to_html
 	/*!
 		@brief Convert text inputbox element array to HTML input.
-
 		@return String.
 	*/
 	// **************************************************
@@ -304,7 +299,6 @@ class CForm
 	//	password_to_html
 	/*!
 		@brief Convert password element array to HTML password.
-
 		@return String.
 	*/
 	// **************************************************
@@ -318,7 +312,6 @@ class CForm
 	//	submit_to_html
 	/*!
 		@brief Convert Submit-button array to HTML Submit.
-
 		@return String.
 	*/
 	// **************************************************
@@ -332,7 +325,6 @@ class CForm
 	//	hidden_to_html
 	/*!
 		@brief Convert hidden input field to HTML.
-
 		@return String.
 	*/
 	// **************************************************
@@ -342,11 +334,24 @@ class CForm
 			. 'value="' . $items['value'] . '">';
 	}
 
+	// ************************************************** 
+	//  file_to_html
+	/*!
+		@brief Creates a file selector to HTML String
+		@param $items Item informations array
+		@return HTML String
+	*/
+	// ************************************************** 
+	private function file_to_html( $items )
+	{
+		return '<input type="file" name="' . $items['name'] . '" '
+			. 'value="' . $items['value'] . '">';
+	}
+
 	// **************************************************
 	//	option_to_html
 	/*!
 		@brief Convert Option-Select to HTML combobox.
-
 		@return String.
 	*/
 	// **************************************************
@@ -388,17 +393,15 @@ class CForm
 	//	items_to_html
 	/*!
 		  @brief This method checks class private variable
-		  $form_items array, check what kind of element it is,
-		  eg. textbox or password field and then calls correct
-		  method to convert it to HTML. Then this method
-		  add converted HTML to return array where we add
-		  two array items per array row, eg. Caption and
-		  item like inputbox.
-
-		  This method must be called before we create a form,
-		  because table creation cannot use $form_items
-		  array directly!
-
+		    $form_items array, check what kind of element it is,
+		    eg. textbox or password field and then calls correct
+		    method to convert it to HTML. Then this method
+		    add converted HTML to return array where we add
+		    two array items per array row, eg. Caption and
+		    item like inputbox.
+		    This method must be called before we create a form,
+		    because table creation cannot use $form_items
+		    array directly!
 		  @return Array.
 	 */
 	// **************************************************
@@ -427,6 +430,10 @@ class CForm
 					$ret = $this->submit_to_html( $fi[$i] );
 					break;
 				
+				case 'file':
+					$ret = $this->file_to_html( $fi[$i] );
+					break;
+
 				case 'option':
 					$ret = $this->option_to_html( $fi[$i] );
 					break;
