@@ -259,7 +259,7 @@ class CForm
 
 		$this->form = '<form action="' . $this->url . '"';
 
-		if( $this->method == 'file' )
+		if( strtolower( $this->method ) == 'file' )
 		{
 			$this->method = 'post';
 			$this->form .= ' enctype="multipart/form-data"';
