@@ -186,6 +186,29 @@ class CForm
 			'fields' => $fields );
 	}
 
+	// ************************************************** 
+	//  addTextarea
+	/*!
+		@brief Add a textarea item fo form.
+		@param $caption Caption to show in a HTML table.
+		@param $name HTML element name
+		@param $id HTML element id
+		@param $value Textarea value
+	*/
+	// ************************************************** 
+	public function addTextarea( $caption, $name, $id='', $value='' )
+	{
+		if( $id == '' )
+			$id = $name . '_id';
+
+		$this->form_items[] = array(
+			'type' => 'textarea',
+			'caption' => $caption,
+			'name' => $name,
+			'id' => $id,
+			'value' => $value );
+	}
+
 	// **************************************************
 	//	addPasswordField
 	/*!
@@ -348,6 +371,21 @@ class CForm
 			. 'value="' . $items['value'] . '">';
 	}
 
+	// ************************************************** 
+	//  textarea_to_html
+	/*!
+		@brief Creates a textarea element
+		@param $items Item informations array
+		@return HTML String
+	*/
+	// ************************************************** 
+	private function textarea_to_html( $items )
+	{
+		return '<textarea name="' . $items['name'] . '" '
+			. 'id="' . $items['id'] . '">' . $items['value'] 
+			. '</textarea>';
+	}
+
 	// **************************************************
 	//	option_to_html
 	/*!
@@ -420,6 +458,10 @@ class CForm
 			{
 				case 'text':
 					$ret = $this->text_to_html( $fi[$i] );
+					break;
+
+				case 'textarea':
+					$ret = $this->textarea_to_html( $fi[$i] );
 					break;
 
 				case 'password':
